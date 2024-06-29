@@ -13,7 +13,8 @@ class Trainer {
       'id': id, 'name': name, 'job': job,
       'pdf' : pdf,
       'age': age,
-      'phoneNumber': phoneNumber
+      'phoneNumber': phoneNumber,
+
     };
   }
 

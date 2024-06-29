@@ -1,17 +1,19 @@
+import 'package:Fitness_Community/viewModel/app_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:Fitness_Community/registration.dart';
 import 'package:Fitness_Community/view/menu/menu_view.dart';
 import 'package:Fitness_Community/common/dialog_utils.dart';
+import 'package:provider/provider.dart';
 class LoginScreen extends StatefulWidget {
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -212,9 +214,11 @@ class _LoginScreenState extends State<LoginScreen> {
       return 'Please enter valid data';
     }
     try {
-      await FirebaseAuth.instance
+    var credential =  await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: _emailController.text,
           password: _passwordController.text);
+      var provider = Provider.of<AppProvider>(context, listen: false);
+     await provider.login(credential.user!.uid);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         return 'No user found for that email.';

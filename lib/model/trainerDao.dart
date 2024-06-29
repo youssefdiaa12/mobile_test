@@ -2,10 +2,10 @@ import 'dart:io';
 import 'package:Fitness_Community/model/trainer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-class UserDao {
-  CollectionReference<Trainer> getusercollection() {
+class TrainerDao {
+  CollectionReference<Trainer> gettrainercollection() {
     var db = FirebaseFirestore.instance;
-    var dbDoc = db.collection('user').withConverter<Trainer>(
+    var dbDoc = db.collection('trainer').withConverter<Trainer>(
       fromFirestore: (snapshot, options) =>
           Trainer.fromFireStore(snapshot.data()!),
       toFirestore: (value, options) => value.toFireStore(),
@@ -13,32 +13,37 @@ class UserDao {
     return dbDoc;
   }
 
-  Future<void> createuser(Trainer user,File pdf) async{
-    var dbDoc = getusercollection();
+  Future<void> createtrainer(Trainer user,File pdf) async{
+    var dbDoc = gettrainercollection();
     //make the user id=doc.id and then set the user
     var dbref= dbDoc.doc();
     user.id=dbref.id;
-    String pdf_path=await upload_User_pdf(pdf, user.id??'');
+    String pdf_path=await upload_Trainer_pdf(pdf, user.id??'');
     user.pdf=pdf_path;
     return dbDoc.doc(user.id).set(user);
   }
 
-  Future<Trainer?> getuser(String id) async {
-    var doc1 = getusercollection();
+  Future<Trainer?> gettrainer(String id) async {
+    var doc1 = gettrainercollection();
     var docSnapShot = await doc1.doc(id).get();
     return docSnapShot.data();
   }
-
-  Future<void> Deleteuser(Trainer user) {
-    var dbDoc = getusercollection();
-    return dbDoc.doc(user.id).delete();
+  Future<List<Trainer>> getalltrainer() async {
+    var doc1 = gettrainercollection();
+    var docSnapShot = await doc1.get();
+    return docSnapShot.docs.map((e) => e.data()).toList();
   }
 
-  Future<String> UpdateUser(String id,File photo) async{
-    var dbDoc = getusercollection();
+  Future<void> Deletetrainer(String id) {
+    var dbDoc = gettrainercollection();
+    return dbDoc.doc(id).delete();
+  }
+
+  Future<String> UpdateTrainer(String id,File photo) async{
+    var dbDoc = gettrainercollection();
     var docSnapShot = await dbDoc.doc(id).get();
     Trainer? user=docSnapShot.data();
-    String image= await upload_User_pdf(photo, id);
+    String image= await upload_Trainer_pdf(photo, id);
     user?.pdf=image;
     await dbDoc.doc(id).update(user!.toFireStore());
 
@@ -46,7 +51,7 @@ class UserDao {
   }
 
 
-  Future<String> upload_User_pdf(
+  Future<String> upload_Trainer_pdf(
       File file, String userId) async {
     print('ok');
 // Create a storage reference from our app

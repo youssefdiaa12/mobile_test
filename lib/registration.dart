@@ -1,9 +1,13 @@
 // ignore_for_file: prefer_const_constructors, avoid_print, use_key_in_widget_constructors
 
+import 'package:Fitness_Community/viewModel/app_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:Fitness_Community/common/dialog_utils.dart';
 import 'package:Fitness_Community/view/menu/menu_view.dart';
+import 'package:provider/provider.dart';
+
+import 'model/user.dart';
 
 class RegistrationScreen extends StatefulWidget {
   @override
@@ -304,10 +308,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       return 'Please enter valid data';
     }
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+     var credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email.text,
         password: password.text,
       );
+      var provider = Provider.of<AppProvider>(context, listen: false);
+      await provider.sign_up(UserLocal(
+        FirstName.text + ' ' + LastName.text,
+        email.text,
+        credential.user!.uid,
+        null,
+        "user"
+      ));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         return 'The password provided is too weak.';
